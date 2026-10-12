@@ -17,7 +17,18 @@ export default function AddLeadModal({ isOpen, onClose, onLeadAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createLead({ ...formData, dealValue: Number(formData.dealValue) });
+      // FIXED: Create a clean payload that exactly matches your Prisma schema
+      // This prevents the 400 Bad Request error caused by the 'assignedTo' string
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        dealValue: Number(formData.dealValue)
+      };
+
+      await createLead(payload);
       onLeadAdded();
       onClose();
     } catch (err) {
@@ -48,7 +59,6 @@ export default function AddLeadModal({ isOpen, onClose, onLeadAdded }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* FIXED: Changed grid-cols-2 to grid-cols-1 sm:grid-cols-2 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">First Name *</label>
@@ -119,7 +129,6 @@ export default function AddLeadModal({ isOpen, onClose, onLeadAdded }) {
               onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
             >
               <option>Umair Ahmad (ADMIN)</option>
-              {/* Add other user mappings here if needed */}
             </select>
           </div>
 
