@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(SALES_REP)
+  leads     Lead[]
+  notes     Note[]
+  createdAt DateTime @default(now())
+}
+
+model Lead {
+  id          String     @id @default(uuid())
+  firstName   String
+  lastName    String
+  company     String?
+  email       String?
+  phone       String?
+  status      LeadStatus @default(NEW)
+  dealValue   Int        @default(0)
+  
+  assignedTo  User       @relation(fields: [userId], references: [id])
+  userId      String
+  
+  notes       Note[]
+  
+  isDeleted   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  leadId    String
+  
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  SALES_REP
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  WON
+  LOST
+}
