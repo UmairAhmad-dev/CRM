@@ -1,4 +1,4 @@
-const API_URL = 'https://crm-cxro2oic.b4a.run/api';
+const API_URL = 'https://crm-2e8y8x4c.b4a.run/api';
 
 export const getLeads = async () => {
   const response = await fetch(`${API_URL}/leads`);
