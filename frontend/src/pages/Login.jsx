@@ -1,83 +1,89 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
-import { Mail, Lock, Briefcase, Loader2, AlertCircle } from 'lucide-react';
 import { login } from '../api/client';
 
 export default function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const loginMutation = useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      localStorage.setItem('crm_user', JSON.stringify(data));
-      navigate('/');
-    },
-  });
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    loginMutation.mutate(formData);
+    setError(null);
+    try {
+      const data = await login(credentials);
+      // Assuming you store the token in localStorage
+      localStorage.setItem('token', data.token); 
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-96 bg-primary-900 skew-y-6 transform -translate-y-32 -z-10"></div>
-      
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white shadow-xl mb-4">
-          <Briefcase className="h-8 w-8 text-primary-600" />
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
+        <div className="bg-white p-3 rounded-2xl shadow-sm mb-4">
+          <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-slate-900">Sign in to CRM Pro</h2>
+        {/* FIXED: Changed text-white to text-gray-900 */}
+        <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
+          Sign in to CRM Pro
+        </h2>
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-slate-100">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-md text-sm flex items-center">
+              <span className="mr-2">⚠️</span> {error}
+            </div>
+          )}
+          
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {loginMutation.isError && (
-              <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-lg flex items-center gap-2 border border-red-100">
-                <AlertCircle className="h-4 w-4" /> {loginMutation.error.message}
-              </div>
-            )}
-
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Email address</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-400" />
-                </div>
-                <input required type="email" placeholder="you@company.com"
-                  className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all text-sm"
-                  onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                Email Address
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  type="email"
+                  required
+                  className="appearance-none block w-full px-3 py-2 pl-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="you@company.com"
+                  onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-400" />
-                </div>
-                <input required type="password" placeholder="••••••••"
-                  className="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all text-sm"
-                  onChange={(e) => setFormData({...formData, password: e.target.value})} />
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide">
+                Password
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  type="password"
+                  required
+                  className="appearance-none block w-full px-3 py-2 pl-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="••••••••"
+                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                />
               </div>
             </div>
 
-            <button 
-              type="submit" disabled={loginMutation.isPending}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all disabled:opacity-70"
+            <button
+              type="submit"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {loginMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
+              Sign in
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-slate-500">Don't have an account? </span>
-            <Link to="/register" className="font-bold text-primary-600 hover:text-primary-500 transition-colors">
+            <span className="text-gray-600">Don't have an account? </span>
+            <Link to="/register" className="font-bold text-indigo-600 hover:text-indigo-500">
               Create one now
             </Link>
           </div>
