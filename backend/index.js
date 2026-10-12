@@ -9,7 +9,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Core Middleware
-app.use(cors());
+// Updated CORS configuration to allow Vercel production URL
+app.use(cors({
+  origin: [
+    'http://localhost:5173', // Your local React development URL
+    'http://localhost:3000', 
+    'https://crm-chi-swart.vercel.app' // Your live Vercel production URL
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // API Routes
@@ -35,5 +44,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`Backend server running on port ${PORT}`);
 });
