@@ -29,8 +29,11 @@ export default function AddLeadModal({ isOpen, onClose, onLeadAdded }) {
       };
 
       await createLead(payload);
-      onLeadAdded();
-      onClose();
+      
+      // FIXED: Added safety checks to prevent crashes if props are missing
+      if (onLeadAdded) onLeadAdded();
+      if (onClose) onClose();
+      
     } catch (err) {
       console.error(err);
     }
