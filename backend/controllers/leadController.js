@@ -6,8 +6,18 @@ const createLead = async (req, res) => {
   try {
     const { firstName, lastName, company, email, phone, userId, dealValue } = req.body;
 
-    if (!firstName || !lastName || !userId) {
-      return res.status(400).json({ error: 'First name, last name, and assigned userId are required' });
+    // FIXED: If the frontend doesn't send a userId, automatically assign it to the first available user (Admin)
+    let assignedUserId = userId;
+    if (!assignedUserId) {
+      const defaultUser = await prisma.user.findFirst();
+      if (!defaultUser) {
+        return res.status(400).json({ error: 'No users exist in the database to assign this lead to.' });
+      }
+      assignedUserId = defaultUser.id;
+    }
+
+    if (!firstName || !lastName) {
+      return res.status(400).json({ error: 'First name and last name are required' });
     }
 
     const newLead = await prisma.lead.create({
@@ -17,7 +27,7 @@ const createLead = async (req, res) => {
         company,
         email,
         phone,
-        userId,
+        userId: assignedUserId,
         dealValue: dealValue ? parseInt(dealValue) : 0,
       },
     });
