@@ -9,10 +9,10 @@ import Notifications from './pages/Notifications';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-// Simple check to ensure user is logged in
+// FIXED: Now correctly checks for 'token' matching the Login page
 const ProtectedRoute = ({ children }) => {
-  const user = localStorage.getItem('crm_user');
-  if (!user) return <Navigate to="/login" />;
+  const token = localStorage.getItem('token');
+  if (!token) return <Navigate to="/login" />;
   return children;
 };
 
