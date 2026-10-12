@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://crm-ycq8s90c.b4a.run/api';
 
 export const getLeads = async () => {
   const response = await fetch(`${API_URL}/leads`);
@@ -61,7 +61,6 @@ export const deleteLead = async (id) => {
   if (!response.ok) throw new Error('Failed to delete lead');
   return response.json();
 };
-
 
 export const login = async (credentials) => {
   const response = await fetch(`${API_URL}/auth/login`, {
